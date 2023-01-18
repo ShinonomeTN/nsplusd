@@ -3,8 +3,8 @@
 
 ## Introduction
 
-This software (can be spelled as NSPlusD or nsplusd) is a DNS reverse proxy
-(or "recursive DNS resolver", a traditional term which was not quite favored by the initial developers)
+**NSPlusD** (can be spelled as "nsplusd" informally) is a DNS reverse proxy
+(or "recursive DNS resolver", a traditional term which was not quite favored by the initial developers of this software)
 with the following key features:
 
 - Accept DNS queries over UDP 53, TCP 53, and DNS over HTTPS. And perhaps more in future.
@@ -13,14 +13,15 @@ with the following key features:
 
 NSPlusD is a lightweight gateway for DNS which allows the instance owners to 
 
-# Configuration
 
-## Location
+## Config
+
+### Location
 
 Upon startup, this software will read all files in `$ROOTFS_PREFIX/etc/nsplusd/conf.d/` and concatenate them,
 expecting to see a valid config.
 
-## Syntax Basics
+### Syntax Basics
 
 Here is an example config:
 
@@ -62,7 +63,7 @@ and **apex directives** (directives which are not located inside any block).
 Directives include local directives (only allowed in blocks), apex directives (only allowed out of blocks),
 and flexible directives (allowed in blocks and out of blocks).
 
-## Blocks
+### Blocks
 
 NSPlusD finds all blocks in the config and parse them.
 
@@ -76,7 +77,7 @@ All blocks are captive. When a request is captured by a block, later blocks will
 If an incoming request is not captured by any block ("walking through the pipelines with nothing happening"),
 the default lookup behavior will be used (to be described in a later section).
 
-### match
+#### match
 
 You can use the `match` block to capture an incoming query by the domain name with wildcard matching with asterisk (`*`).
 A **matching term** can have up to 8 asterisks,
@@ -87,7 +88,7 @@ If you require greedy matching
 (e.g. match something like `1.2.3.4` in requested domain name `1.2.3.4.reverse-dns.example.com`),
 use double asterisks (`**`) as the wildcard symbol (`**.reverse-dns.example.com`).
 
-### match_from
+#### match_from
 
 Similar to `match`, but the string after it is interpreted as the path of a file
 which contains a newline-delimited, hash-commented list of matching terms (not quoted).
@@ -97,24 +98,24 @@ this block will be used to determine how NSPlusD should serve this request.
 If the path starts with `/`, it is interpreted as an absolute path.
 Otherwise, it is interpreted as a relative path under `$ROOTFS_PREFIX/etc/nsplusd/lists.d`.
 
-## Flexible Directives
+### Flexible Directives
 
 A locally declared flexible directive (in a block) can override its globally set value.
 
-### upstream_timeout
+#### upstream_timeout
 
 Declare that how long can NSPlusD wait for an upstream answer before returning a timeout answer
 to the original client.
 
-## Local Directives
+### Local Directives
 
-### rewrite
+#### rewrite
 
 When a rewrite happens, the current request is marked "dirty".
 When a block exits, if the request is dirty, NSPlusD will start over to try finding a capturing block.
 But rest assured, only up to 8 (or env `MAX_REWRITES`) rewrites can happen for any particular request.
 
-### upstream
+#### upstream
 
 If no `upstream` directive is used in a block,
 NSPlusD will use the default **upstream lookup behavior**.
@@ -122,7 +123,7 @@ NSPlusD will use the default **upstream lookup behavior**.
 Additionally, a magic word `@` is allowed as a valid upstream indicator.
 It means that, when all given upstream servers go timeout, NSPlusD can fallback to the default upstream discovery mechanism.
 
-### upstream_from
+#### upstream_from
 
 The effect is similar to the `upstream` directive.
 
@@ -130,9 +131,9 @@ The reading behavior is similar to the `match_from` block.
 This directive reads a file from the given path (absolute or relative to `$ROOTFS_PREFIX/etc/nsplusd/upstreams.d`)
 and interprets the content as a newline-delimited, hash-commented list of **upstream indicators**.
 
-## Apex Directives
+### Apex Directives
 
-### accept
+#### accept
 
 Specify a whitespace-delimited list of accepting protocols along with the comma-delimited list of listening ports for the protocol;
 two sections of a record are connected by slash.
@@ -149,20 +150,20 @@ Example: `accept "udp/53,20053 tcp/53,20053 https/443,2096 tls/853,20853";`.
 
 Default: `accept "udp/53 tcp/53 https/443 tls/853";`.
 
-### max_rewrites
+#### max_rewrites
 
 Set how many recursive rewrites can happen for a particular incoming request.
 
 Example: `max_rewrites "16";`.
 
-### default_upstreams
+#### default_upstreams
 
 Specify a whitespace-delimited list of **upstream indicators** for **upstream lookup behavior**.
 If not set, the default upstream discovery mechanism will be used in upstream lookup behavior.
 
 Example: `default_upstreams "1.1.1.1 www.cloudflare-dns.com/https";`.
 
-### default_protocol
+#### default_protocol
 
 Set the default protocol for the indicated upstream servers which are not accompanied by protocol information in the **upstream indicator**.
 
@@ -172,19 +173,19 @@ Example: `default_protocol "udp"`.
 
 Default: `default_protocol "tcp"`.
 
-## Functions
+### Functions
 
 Functions can only be used in directives.
 
-### sha256hex_b12
+#### sha256hex_b12
 
 Calculate the SHA-256 hash of the input string,
 then serialize to lowercase hexadecimal representation,
 then get the initial 12 characters.
 
-## Miscellaneous
+### Miscellaneous
 
-### Upstream Indicator
+#### Upstream Indicator
 
 An **upstream indicator** is a string which consists of two sections: hostname (required) and protocol (optional).
 
@@ -205,7 +206,7 @@ This is the intended design, so that any `resolv.conf` file can be interpreted a
 
 
 
-## Upstream Lookup Behavior
+#### Upstream Lookup Behavior
 
 NSPlusD is not an iterative resolver, and hence never does the iteration from root domains (e.g. `com.`).
 NSPlusD is only a recursive resolver, so it only relays the upstream answers with TTL-respecting caches.
@@ -216,7 +217,7 @@ the locally selected list of **upstream indicators** will be used.
 
 Otherwise, NSPlusD continues to the following default behavior to determine what **upstream indicators** should be used.
 
-### Default Upstream Discovery Mechanism
+#### Default Upstream Discovery Mechanism
 
 Unless instructed by the instance owner in the config via apex directive `default_upstreams`,
 NSPlusD will try to formulate a whitespace-delimited list of **upstream indicators** according to the following workflow:
@@ -229,8 +230,6 @@ NSPlusD will try to formulate a whitespace-delimited list of **upstream indicato
 Other spacing characters (e.g. newline and tab) are treated equivalent to whitespace here,
 like how we do `for word in $(cat list); do`
 in shell scripts without caring how the list is actually quasiwhitespace-delimited.
-
-### Contacting Upstream Servers
 
 Now NSPlusD has a list of upstream servers to try among.
 Appearing earlier in the list means having a higher priority.
@@ -280,7 +279,7 @@ See the `/tld-def` directories for definitions and `/files/consensus-tld.conf.lu
 
 
 
-## Other Ideas
+## Extra Notes
 
 - We wish that every instance owner can respect the consensus-based TLD definitions which are collected in this repository in `/tld-def`.
     The rules necessary to support those TLDs are shipped with this software as default config.
@@ -297,3 +296,4 @@ The license for software source code remains to be determined.
 
 The documentation files in this repository (all `.md` files, including this `README.md`)
 are released with GNU FDL 1.3 (`GFDL-1.3-only`).
+
