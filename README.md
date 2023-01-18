@@ -1,4 +1,4 @@
-# NSPlusD
+# NS+D
 
 
 ## Introduction
@@ -11,7 +11,10 @@ with the following key features:
 - Rewrite the domain name in a DNS query by configuring rewrite rules.
 - Contact different upstream DNS servers according to the configured rules.
 
-NSPlusD is a lightweight gateway for DNS which allows the instance owners to 
+NSPlusD is a lightweight gateway for DNS which allows the instance owners to play with
+customized DNS magics without impairing traditional DNS capabilities or
+completely migrating to a full-feature DNS solution suite
+(which handles everything in DNS in a systemd fashion).
 
 
 ## Config
