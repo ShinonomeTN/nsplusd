@@ -8,6 +8,9 @@ Status: Draft.
 Every **autonomous system** (AS) is identified by a unique ASN,
 and each AS may be assigned IP prefixes.
 
+The `asn` TLD aims to provide domain names for AS owners
+without requiring domain name registration.
+
 
 ## Gateway Resolver
 
@@ -42,6 +45,8 @@ In this case, the two IP addresses are the **self-believed quasi-authoritative D
 Finding the "first available address" in IPv6 prefixes can be more tricky.
 The exact behavior for IPv6 will be added in a future version.
 
+We call this **listing mode**.
+
 
 ## More Prefixes
 
@@ -53,12 +58,37 @@ For any AS which has at least 3 IPv4 prefixes or at least 3 IPv6 prefixes,
 e.g. AS4134 in real world (which has 681 IPv4 prefixes and 606 IPv6 prefixes),
 the gateway resolver shall work in **selective mode**, instead of the simple **listing mode**
 (simply returning a list of the first available IP addresses).
+
 In selective mode, the gateway resolver shall detect whether a potential DNS server (in the list as described above)
 is really a DNS server by playing with its UDP 53 and TCP 53, expecting NS records for `4134.asn`.
-The 2 fastest valid DNS servers are considered the **self-believed quasi-authoritative DNS servers** of `4134.asn`.
-The list of self-believed quasi-authoritative DNS servers for a given AS shall expire in 24 hours.
+The 20 fastest valid DNS servers are considered the good candidates.
+
+THe gateway resolver shall produce a list of values of NS records from them,
+and take the 4 most popular (included by most good candidates) values as the
+**self-believed quasi-authoritative DNS servers** of `4134.asn`.
+The list of self-believed quasi-authoritative DNS servers for a given AS shall expire in 24 hours
+(or another value designated by the maintainer of the gateway resolver).
+
+
 
 
 ## Answering
 
-Now the gateway resolver
+Now the gateway resolver can operate well for AS4134.
+
+This list of **self-believed quasi-authoritative DNS servers** is used in 2 ways:
+
+- Use as the value of NS records of `4134.asn.example.com` in DNS answers.
+- Use as the upstream servers to which outbound lookup requests for `*.4134.asn` are sent.
+
+
+
+## Afternotes
+
+When a gateway resolver is used in combination with NSPlusD,
+we are essentially creating a bridge over the traditional NIC-based Internet.
+
+The client wants `www.1234.asn`.
+It gets translated to `www.1234.asn.example.com` by NSPlusD before sending to `ns1.example.com`;
+it is important that the maintainer of the NSPlusD instance does not have to specify `ns1.example.com`,
+and only needs to maintain a short list of suffixes with the `rewrite` directive.
