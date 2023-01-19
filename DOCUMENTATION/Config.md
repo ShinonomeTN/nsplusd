@@ -240,6 +240,9 @@ You may notice that a newline-delimited list of upstream indicators (with the pr
 looks very compatible with `resolf.conf`.
 This is the intended design, so that any `resolv.conf` file can be interpreted as a list of upstream indicators.
 
+For upstream indicators with protocol set to `https`, NSPlusD expects the upstream server to be compatible with
+[Cloudflare 1.1.1.1 DNS-over-HTTPS API](https://developers.cloudflare.com/1.1.1.1/encryption/dns-over-https/make-api-requests/).
+
 
 
 ### Upstream Lookup Behavior
