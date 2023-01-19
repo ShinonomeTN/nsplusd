@@ -125,7 +125,7 @@ to the original client.
 
 You can use **rewrite** to change the domain name of the query on the fly.
 For example, when you match `ftp.1234.asn` with a `match "**.asn"` block,
-you can let `rewrite "$1.asn.example.com"` to let NSPlusD make an outbound lookup request for
+you can let `rewrite "$1.asn.example.com"` to demand that NSPlusD makes an outbound lookup request for
 `ftp.1234.example.com` instead of the original `ftp.1234.asn`.
 
 When a rewrite happens, the current request is marked "dirty".
