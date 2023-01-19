@@ -15,6 +15,7 @@ mkdir -p "$(dirname "$pdf_path")"
 pandoc -i "$md_path" \
     --toc \
     -H <(echo '\apptocmd{\tableofcontents}{\clearpage}') \
+    -B <(echo '\frenchspacing') \
     -A <(echo '\clearpage\leavevmode\vfill\small This document is part of NSPlusD software and is published with GNU FDL 1.3.\par\href{https://github.com/ShinonomeTN/nsplusd}{https://github.com/ShinonomeTN/nsplusd}') \
     -V monofont="JetBrains Mono NL" \
     -V fontsize="11pt" \

@@ -112,8 +112,12 @@ A locally declared flexible directive (in a block) can override its globally set
 
 ### upstream_timeout
 
-Declare that how long can NSPlusD wait for an upstream answer before returning a timeout answer
+Declare that how long (in milliseconds) can NSPlusD wait for an upstream answer before returning a timeout answer
 to the original client.
+
+Example: `upstream_timeout "2000";`.
+
+Default: `upstream_timeout "1000";`.
 
 
 
@@ -146,6 +150,8 @@ NSPlusD will use the default **upstream lookup behavior**.
 
 Additionally, a magic word `@` is allowed as a valid upstream indicator.
 It means that, when all given upstream servers go timeout, NSPlusD can fallback to the default upstream discovery mechanism.
+
+Example: `upstream "1.1.1.1/tcp 1.1.1.1/https @";`.
 
 ### upstream_from
 
